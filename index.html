@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Bananarama · banana + magic</title>
+  <!-- Tailwind via CDN + custom layer for playful fonts/extras -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Extend theme: warm palette, playful font -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600;700&display=swap');
+    
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: 'Quicksand', sans-serif;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+    
+    .font-fredoka {
+      font-family: 'Fredoka One', cursive;
+      letter-spacing: 0.02em;
+    }
+    
+    /* subtle parallax helper */
+    .parallax-bg {
+      background-attachment: scroll;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    
+    @media (min-width: 768px) {
+      .parallax-bg {
+        background-attachment: fixed;
+      }
+    }
+    
+    /* custom hover + card animations */
+    .product-card {
+      transition: transform 0.25s ease, box-shadow 0.3s ease;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 25px 30px -15px rgba(251, 146, 60, 0.4);
+    }
+    
+    .product-card:active {
+      transform: scale(0.98);
+    }
+    
+    .cta-pulse {
+      transition: all 0.3s ease;
+    }
+    
+    .cta-pulse:hover {
+      animation: gentle-pulse 1s infinite;
+    }
+    
+    @keyframes gentle-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    
+    /* mobile menu animation */
+    #mobile-menu {
+      transition: all 0.3s ease-in-out;
+    }
+    
+    #mobile-menu:not(.hidden) {
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* star rating inline */
+    .rating-star {
+      color: #fbbf24;
+    }
+    
+    /* sticky header with blur */
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    
+    /* improved touch targets for mobile */
+    button, a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      transition: background-color 0.2s;
+    }
+    
+    .nav-link:active {
+      background-color: rgba(251, 191, 36, 0.3);
+    }
+    
+    /* smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
+    
+    /* image placeholders with gradient */
+    .img-placeholder {
+      background: linear-gradient(145deg, #fef9c3, #fde68a, #fcd34d);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .img-placeholder::after {
+      content: "✨";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      opacity: 0.5;
+    }
+    
+    /* responsive typography */
+    @media (max-width: 640px) {
+      h1.font-fredoka {
+        font-size: 3rem;
+        line-height: 1.2;
+      }
+      h2.font-fredoka {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+  <!-- enhanced JS for interactive elements -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // mobile menu toggle with improved UX
+      const menuBtn = document.getElementById('menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      if (menuBtn && mobileMenu) {
+        menuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          mobileMenu.classList.toggle('hidden');
+          menuBtn.style.transform = mobileMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(90deg';
+        });
+
+        // close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target) && !mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.add('hidden');
+            menuBtn.style.transform = 'rotate(0deg)';
+          }
+        });
+
+        // close mobile menu when clicking a link
+        mobileMenu.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+            menuBtn.style.transform = 'rotate(0deg)';
+          });
+        });
+      }
+
+      // smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href === "#") return;
+          const target = document.querySelector(href);
+          if (target) {
+            e.preventDefault();
+            const headerOffset = 80;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+
+      // newsletter signup
+      const newsletterForm = document.getElementById('newsletter-form');
+      if (newsletterForm) {
+        newsletterForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const email = e.target.querySelector('input[type="email"]').value;
+          if (email) {
+            alert('🐒 Thanks for subscribing! Check your email for banana news.');
+            e.target.reset();
+          }
+        });
+      }
+
+      // order buttons with feedback
+      document.querySelectorAll('.order-now-btn, #order-online-hero, #find-store-hero, #cta-order, #cta-find, #cta-contact').forEach(btn => {
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+              btn.style.transform = 'scale(1)';
+              alert('🍌🧀 Yum! This would take you to order / store locator (demo).');
+            }, 100);
+          });
+        }
+      });
+
+      // add active state to current section in header
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - 100;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= sectionTop && pageYOffset < sectionTop + sectionHeight) {
+            current = section.getAttribute('id');
+          }
+        });
+
+        navLinks.forEach(link => {
+          link.classList.remove('bg-amber-400', 'text-amber-900');
+          if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('bg-amber-400', 'text-amber-900');
+          }
+        });
+      });
+    });
+  </script>
+</head>
+<body class="bg-gradient-to-b from-amber-50 via-yellow-50 to-orange-100 text-stone-800 antialiased overflow-x-hidden">
+
+  <!-- STICKY HEADER with improved mobile design -->
+  <header class="sticky-header bg-yellow-300/90 bg-opacity-95 border-b-4 border-amber-400 shadow-lg py-2 px-3 md:py-3 md:px-8 flex justify-between items-center">
+    <div class="flex items-center gap-1 md:gap-2">
+      <!-- Logo placeholder - replace with your actual logo -->
+      <div class="w-8 h-8 md:w-10 md:h-10 bg-amber-500 rounded-full flex items-center justify-center text-white text-xl md:text-2xl shadow-md">
+        🍌
+      </div>
+      <span class="text-xl md:text-3xl drop-shadow-lg font-fredoka text-amber-800">Bananarama</span>
+    </div>
+    <!-- desktop nav - improved touch targets -->
+    <nav class="hidden md:flex gap-1 lg:gap-2 font-semibold text-amber-900">
+      <a href="#home" class="nav-link">Home</a>
+      <a href="#about" class="nav-link">About</a>
+      <a href="#products" class="nav-link">Products</a>
+      <a href="#reviews" class="nav-link">Reviews</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </nav>
+    <!-- mobile hamburger - better touch target -->
+    <button id="menu-btn" class="block md:hidden text-3xl text-amber-800 focus:outline-none w-12 h-12 flex items-center justify-center rounded-full hover:bg-amber-400/30 transition-all" aria-label="Menu">
+      🍔
+    </button>
+  </header>
+  
+  <!-- mobile menu dropdown - improved design -->
+  <div id="mobile-menu" class="hidden md:hidden bg-gradient-to-b from-yellow-200 to-amber-200 px-4 py-3 text-amber-900 font-bold border-b-4 border-amber-300 shadow-xl">
+    <a href="#home" class="block hover:bg-amber-300 p-3 rounded-xl mb-1 text-lg transition-all">🏠 Home</a>
+    <a href="#about" class="block hover:bg-amber-300 p-3 rounded-xl mb-1 text-lg transition-all">📖 About</a>
+    <a href="#products" class="block hover:bg-amber-300 p-3 rounded-xl mb-1 text-lg transition-all">🍽️ Products</a>
+    <a href="#reviews" class="block hover:bg-amber-300 p-3 rounded-xl mb-1 text-lg transition-all">⭐ Reviews</a>
+    <a href="#contact" class="block hover:bg-amber-300 p-3 rounded-xl mb-1 text-lg transition-all">📞 Contact</a>
+  </div>
+
+  <main>
+    <!-- HERO SECTION - enhanced mobile layout -->
+    <section id="home" class="relative overflow-hidden bg-gradient-to-br from-yellow-300 via-amber-300 to-orange-300 py-10 md:py-20 px-4 border-b-8 border-amber-400">
+      <!-- decorative background pattern -->
+      <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2220%22 cy=%2220%22 r=%2210%22 fill=%22%23fbbf24%22 opacity=%220.4%22/><circle cx=%2280%22 cy=%2270%22 r=%2220%22 fill=%22%23f59e0b%22 opacity=%220.3%22/></svg>'); background-size: 80px;"></div>
+      
+      <div class="relative max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-6 md:gap-10">
+        <!-- left text - centered on mobile -->
+        <div class="flex-1 text-center md:text-left z-10">
+          <h1 class="font-fredoka text-4xl sm:text-5xl md:text-7xl text-amber-900 drop-shadow-xl leading-tight">
+            <br class="hidden sm:block">Bananarama
+          </h1>
+          <p class="text-xl sm:text-2xl md:text-3xl text-amber-800 font-semibold mt-2 md:mt-3 drop-shadow flex items-center justify-center md:justify-start gap-2">
+            <span>🍌 melted cheese</span> <span class="hidden xs:inline">+</span> <span>sweet banana! 🧀</span>
+          </p>
+          <p class="text-base sm:text-lg md:text-xl text-stone-700 max-w-lg mx-auto md:mx-0 mt-3 md:mt-4 px-2 md:px-0">
+            The crunch you crave, the cheese you love – all wrapped in farm-fresh banana.
+          </p>
+          
+          <!-- CTA buttons - stacked on mobile, side by side on larger -->
+          <div class="flex flex-col sm:flex-row gap-3 md:gap-4 mt-6 md:mt-8 justify-center md:justify-start">
+            <a href="#" id="order-online-hero" class="bg-amber-600 hover:bg-amber-700 text-white text-base sm:text-lg md:text-xl px-6 sm:px-8 py-3 sm:py-4 rounded-full shadow-xl font-bold border-4 border-yellow-300 transform transition hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+              📱 Order Online
+            </a>
+            <a href="#" id="find-store-hero" class="bg-yellow-400 hover:bg-yellow-500 text-amber-900 text-base sm:text-lg md:text-xl px-6 sm:px-8 py-3 sm:py-4 rounded-full shadow-xl font-bold border-4 border-amber-600 transform transition hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+              📍 Find a Store
+            </a>
+          </div>
+        </div>
+        
+        <!-- right image - responsive sizing -->
+        <div class="flex-1 flex justify-center w-full max-w-sm md:max-w-none mx-auto mt-6 md:mt-0">
+          <img src="banana.png" alt="Cheesy banana hero snack with melted cheese" 
+               class="w-full max-w-[280px] xs:max-w-sm md:max-w-md rounded-[2rem] md:rounded-[3rem] shadow-2xl border-4 md:border-8 border-amber-200 rotate-1 hover:rotate-0 transition-transform duration-300 img-placeholder"
+               style="min-height: 200px; aspect-ratio: 1/1;">
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT SECTION - improved mobile layout -->
+    <section id="about" class="py-12 md:py-16 px-4 md:px-8 bg-gradient-to-b from-amber-100 to-yellow-200">
+      <div class="max-w-5xl mx-auto flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+        <div class="flex-1 order-2 md:order-1 text-center md:text-left">
+          <h2 class="font-fredoka text-4xl sm:text-5xl text-amber-800 mb-4 md:mb-6">
+            onlv the best <span class="bg-amber-300 px-3 py-1 rounded-2xl inline-block mt-2 md:mt-0">bananas</span>
+          </h2>
+          <p class="text-base sm:text-lg text-stone-700 mb-3 md:mb-4 leading-relaxed">
+            We partner with sun-drenched farms that deliver bananas at peak sweetness. Each fruit is hand-picked, ensuring natural sugars caramelize perfectly when baked with our signature melting cheese.
+          </p>
+          <p class="text-base sm:text-lg font-semibold text-amber-800 mb-3 md:mb-4 bg-amber-200/50 p-3 rounded-xl">
+            ✨ No additives, just pure fruit + cheesy goodness — packed with potassium and protein.
+          </p>
+          <p class="text-lg sm:text-xl text-amber-700">
+            From our family to yours: <span class="underline decoration-wavy decoration-amber-500">fun, flavour, and farm love.</span>
+          </p>
+        </div>
+        <div class="flex-1 order-1 md:order-2 w-full max-w-sm md:max-w-none mx-auto">
+          <img src="cheese.jpg" alt="Farm fresh bananas field view" 
+               class="w-full rounded-[3rem] md:rounded-[4rem] shadow-2xl border-4 border-amber-400 rotate-[-2deg] img-placeholder"
+               style="min-height: 250px; aspect-ratio: 4/3;">
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT SHOWCASE - improved grid for mobile -->
+    <section id="products" class="py-12 md:py-16 px-4 bg-yellow-50">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="font-fredoka text-4xl sm:text-5xl text-center text-amber-800 mb-2">🔥 banana creations 🔥</h2>
+        <p class="text-center text-lg md:text-xl text-amber-700 mb-8 md:mb-12">grab a bite – order now</p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+          <!-- product 1 -->
+          <div class="product-card bg-white/90 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-6 border-4 border-amber-300 shadow-xl hover:shadow-2xl">
+            <img src="choco.jpg" alt="Cheesy banana roll with melted cheese" 
+                 class="rounded-xl md:rounded-2xl border-4 border-amber-400 mb-3 md:mb-4 hover:scale-105 transition-transform img-placeholder"
+                 style="min-height: 180px; aspect-ratio: 4/3;">
+            <h3 class="font-fredoka text-2xl md:text-3xl text-amber-800">Choco Banana Roll</h3>
+            <p class="text-sm md:text-base text-stone-600 mt-1 md:mt-2">Ripe banana wrapped in soft dough, generously filled and drenched in rich, velvety chocolate for a decadent chocolate Banana treat.</p>
+            <div class="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mt-3 md:mt-4">
+              <span class="text-amber-700 font-bold text-sm md:text-base">⭐ 4.9 (120+)</span>
+              <a href="#" class="order-now-btn bg-amber-500 hover:bg-amber-600 text-white px-4 md:px-6 py-2 rounded-full font-bold border-2 border-amber-700 transition-all text-sm md:text-base w-full xs:w-auto text-center">
+                Order Now 🧀
+              </a>
+            </div>
+          </div>
+          
+          <!-- product 2 -->
+          <div class="product-card bg-white/90 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-6 border-4 border-amber-300 shadow-xl hover:shadow-2xl">
+            <img src="ube.jpg" alt="Banana cheese melt sandwich" 
+                 class="rounded-xl md:rounded-2xl border-4 border-amber-400 mb-3 md:mb-4 hover:scale-105 transition-transform img-placeholder"
+                 style="min-height: 180px; aspect-ratio: 4/3;">
+            <h3 class="font-fredoka text-2xl md:text-3xl text-amber-800">Banana Ube-filled</h3>
+            <p class="text-sm md:text-base text-stone-600 mt-1 md:mt-2">Ube-filled crispy golden banana rolls stuffed with rich, creamy ube halaya, perfectly sweet and indulgent in every bite.</p>
+            <div class="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mt-3 md:mt-4">
+              <span class="text-amber-700 font-bold text-sm md:text-base">⭐ 4.8 (89)</span>
+              <a href="#" class="order-now-btn bg-amber-500 hover:bg-amber-600 text-white px-4 md:px-6 py-2 rounded-full font-bold border-2 border-amber-700 transition-all text-sm md:text-base w-full xs:w-auto text-center">
+                Order Now 🧀
+              </a>
+            </div>
+          </div>
+          
+          <!-- product 3 -->
+          <div class="product-card bg-white/90 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-6 border-4 border-amber-300 shadow-xl hover:shadow-2xl">
+            <img src="matcha.jpg" alt="Cheesy banana bites snack" 
+                 class="rounded-xl md:rounded-2xl border-4 border-amber-400 mb-3 md:mb-4 hover:scale-105 transition-transform img-placeholder"
+                 style="min-height: 180px; aspect-ratio: 4/3;">
+            <h3 class="font-fredoka text-2xl md:text-3xl text-amber-800">Matcha Banana Bliss</h3>
+            <p class="text-sm md:text-base text-stone-600 mt-1 md:mt-2">Matcha Banana Bliss — banana nuggets infused with rich matcha flavor, baked to golden perfection with a smooth, earthy sweetness in every bite.</p>
+            <div class="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mt-3 md:mt-4">
+              <span class="text-amber-700 font-bold text-sm md:text-base">⭐ 4.9 (210)</span>
+              <a href="#" class="order-now-btn bg-amber-500 hover:bg-amber-600 text-white px-4 md:px-6 py-2 rounded-full font-bold border-2 border-amber-700 transition-all text-sm md:text-base w-full xs:w-auto text-center">
+                Order Now 🧀
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- nutritional info - scrollable on mobile -->
+        <div class="mt-8 md:mt-12 flex flex-nowrap md:flex-wrap gap-2 md:gap-6 justify-start md:justify-center overflow-x-auto pb-4 md:pb-0 px-2 md:px-0">
+          <span class="bg-amber-200 px-4 md:px-6 py-2 rounded-full text-xs md:text-sm font-bold whitespace-nowrap">🥔 per roll: 210cal | 8g protein</span>
+          <span class="bg-amber-200 px-4 md:px-6 py-2 rounded-full text-xs md:text-sm font-bold whitespace-nowrap">🧀 melt: 340cal | 15g protein</span>
+          <span class="bg-amber-200 px-4 md:px-6 py-2 rounded-full text-xs md:text-sm font-bold whitespace-nowrap">🍟 bites: 180cal (serving)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIDEO SECTION - responsive -->
+    <section class="py-10 md:py-12 bg-amber-300 border-y-4 border-amber-500">
+      <div class="max-w-3xl mx-auto text-center px-4">
+        <h2 class="font-fredoka text-3xl md:text-4xl text-amber-900 mb-4 md:mb-6">🎥 how it's made: cheese meets banana</h2>
+        <div class="rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-4 md:border-8 border-amber-100">
+          <video autoplay muted loop playsinline class="w-full" poster="">
+            <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <p class="mt-3 md:mt-4 text-amber-900 text-lg md:text-xl font-semibold">✨ real cheese, real bananas, real magic ✨</p>
+      </div>
+    </section>
+
+    <!-- REVIEWS SECTION - improved mobile cards -->
+    <section id="reviews" class="py-12 md:py-16 px-4 bg-yellow-100">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="font-fredoka text-4xl sm:text-5xl text-center text-amber-800 mb-8 md:mb-12">⭐ customer snaps ⭐</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
+          <div class="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-xl border-4 border-amber-200 hover:shadow-2xl transition-shadow">
+            <div class="flex items-center gap-2 text-amber-500 text-xl md:text-2xl mb-2">★★★★★ <span class="text-amber-400 text-sm md:text-base">5.0</span></div>
+            <p class="text-base md:text-lg">“The cheesy banana roll is INSANE. Tastes like a dream, my kids beg for it daily.”</p>
+            <p class="mt-3 font-bold text-amber-700">— Mia, foodie mom</p>
+          </div>
+          <div class="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-xl border-4 border-amber-200 hover:shadow-2xl transition-shadow">
+            <div class="flex items-center gap-2 text-amber-500 text-xl md:text-2xl mb-2">★★★★★ <span class="text-amber-400 text-sm md:text-base">5.0</span></div>
+            <p class="text-base md:text-lg">“Perfect balance of sweet & salty. Never thought banana+cheese could be this epic.”</p>
+            <p class="mt-3 font-bold text-amber-700">— Carlos, snack enthusiast</p>
+          </div>
+          <div class="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-xl border-4 border-amber-200 hover:shadow-2xl transition-shadow">
+            <div class="flex items-center gap-2 text-amber-500 text-xl md:text-2xl mb-2">★★★★☆ <span class="text-amber-400 text-sm md:text-base">4.7</span></div>
+            <p class="text-base md:text-lg">“Fresh ingredients, quick delivery. The bites are dangerously addictive.”</p>
+            <p class="mt-3 font-bold text-amber-700">— Sam, fitness lover</p>
+          </div>
+          <div class="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-xl border-4 border-amber-200 hover:shadow-2xl transition-shadow">
+            <div class="flex items-center gap-2 text-amber-500 text-xl md:text-2xl mb-2">★★★★★ <span class="text-amber-400 text-sm md:text-base">5.0</span></div>
+            <p class="text-base md:text-lg">“Love that it's made with real bananas. My new favorite cheat snack.”</p>
+            <p class="mt-3 font-bold text-amber-700">— Priya, food blogger</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALL TO ACTION SECTION - improved mobile stacking -->
+    <section class="py-12 md:py-16 px-4 bg-gradient-to-r from-amber-400 to-yellow-400 border-t-8 border-b-8 border-amber-600">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="font-fredoka text-3xl sm:text-4xl md:text-5xl text-amber-900 mb-6 md:mb-8 px-2">ready to go bananas? 🍌🧀</h2>
+        <div class="flex flex-col sm:flex-row gap-3 md:gap-6 justify-center">
+          <a href="#" id="cta-order" class="cta-pulse bg-white hover:bg-amber-100 text-amber-800 text-lg sm:text-xl md:text-2xl px-6 md:px-10 py-4 md:py-5 rounded-full shadow-2xl font-bold border-4 border-amber-500 flex items-center justify-center gap-2 transition-all active:scale-95">
+            🛒 Order Online
+          </a>
+          <a href="#" id="cta-find" class="cta-pulse bg-amber-700 hover:bg-amber-800 text-white text-lg sm:text-xl md:text-2xl px-6 md:px-10 py-4 md:py-5 rounded-full shadow-2xl font-bold border-4 border-yellow-300 flex items-center justify-center gap-2 transition-all active:scale-95">
+            📍 Find a Store
+          </a>
+          <a href="#" id="cta-contact" class="cta-pulse bg-amber-500 hover:bg-amber-600 text-white text-lg sm:text-xl md:text-2xl px-6 md:px-10 py-4 md:py-5 rounded-full shadow-2xl font-bold border-4 border-amber-800 flex items-center justify-center gap-2 transition-all active:scale-95">
+            📞 Contact Us
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEWSLETTER SIGNUP - improved mobile form -->
+    <section class="py-10 md:py-12 px-4 bg-amber-200">
+      <div class="max-w-2xl mx-auto text-center">
+        <h3 class="font-fredoka text-2xl md:text-3xl text-amber-800 mb-3 md:mb-4">🍌 get cheesy updates</h3>
+        <p class="text-base md:text-lg mb-4 md:mb-6">subscribe for exclusive deals + new snack alerts</p>
+        <form id="newsletter-form" class="flex flex-col sm:flex-row gap-2 md:gap-3">
+          <input type="email" placeholder="your best email" required 
+                 class="flex-1 px-4 md:px-6 py-3 md:py-4 rounded-full border-4 border-amber-400 text-base md:text-lg focus:outline-none focus:border-amber-600 transition-colors">
+          <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold border-4 border-amber-300 text-base md:text-lg transition-all active:scale-95 whitespace-nowrap">
+            Sign me up 🧀
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FOOTER - improved mobile layout -->
+    <footer id="contact" class="bg-amber-900 text-amber-100 py-8 md:py-10 px-4">
+      <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+        <div class="text-center sm:text-left">
+          <h4 class="font-fredoka text-xl md:text-2xl text-yellow-300 mb-2 md:mb-3">Bananarama</h4>
+          <p class="text-amber-200 text-sm md:text-base">sunshine & cheese since 2022</p>
+          <div class="flex gap-3 md:gap-4 mt-4 md:mt-5 text-2xl md:text-3xl justify-center sm:justify-start">
+            <a href="#" class="hover:text-yellow-300 transition transform hover:scale-110 w-10 h-10 flex items-center justify-center">📸</a>
+            <a href="#" class="hover:text-yellow-300 transition transform hover:scale-110 w-10 h-10 flex items-center justify-center">📘</a>
+            <a href="#" class="hover:text-yellow-300 transition transform hover:scale-110 w-10 h-10 flex items-center justify-center">🎵</a>
+            <a href="#" class="hover:text-yellow-300 transition transform hover:scale-110 w-10 h-10 flex items-center justify-center">🐦</a>
+          </div>
+        </div>
+        
+        <div class="text-center sm:text-left">
+          <p class="font-bold text-yellow-300 text-lg md:text-xl mb-2">Contact / store</p>
+          <p class="text-sm md:text-base">📞 +6399587342</p>
+          <p class="text-sm md:text-base">📧 bananarama@gmail.com</p>
+          <p class="text-sm md:text-base">🌍 Km. 9, Barangay Sasa, near the coastal road and local market area, Davao City, Philippines</p>
+        </div>
+        
+        <div class="text-center sm:text-left sm:col-span-2 md:col-span-1">
+          <p class="font-bold text-yellow-300 text-lg md:text-xl mb-2">quick links</p>
+          <ul class="space-y-1">
+            <li><a href="#home" class="hover:text-white transition inline-block py-1">Home</a></li>
+            <li><a href="#about" class="hover:text-white transition inline-block py-1">About</a></li>
+            <li><a href="#products" class="hover:text-white transition inline-block py-1">Products</a></li>
+            <li><a href="#reviews" class="hover:text-white transition inline-block py-1">Reviews</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="text-center text-amber-300 border-t border-amber-700 mt-6 md:mt-8 pt-4 md:pt-6 text-xs md:text-sm">
+        © 2025 Cheesy Bananarama — all rights reserved (but all the cheese is yours)
+      </div>
+    </footer>
+  </main>
+</body>
+</html>
